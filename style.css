@@ -1,0 +1,16 @@
+body {
+    font-family: 'Saira', sans-serif;
+    text-align: center;
+    background-color: #e6f3e2;
+}
+
+/* Styling for game title */
+h1 {
+    font-family: 'Press Start 2P',static;
+    color: #566e2f;
+}
+button{
+    font-family: 'Audiowide', sans-serif;
+    text-align: center;
+}
+

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+<body>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for specifying character encoding and viewport -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Electrolize&family=Lexend+Deca:wght@100..900&family=Press+Start+2P&family=Saira:ital,wght@0,100..900;1,100..900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <!-- CSS Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+    <!-- Title of the game -->
+    <title>COIN TOSS</title>
+
+    <!-- CSS styles for styling the game interface -->
+    <style>
+        /* General styling */
+
+        /* Styling for buttons */
+        button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #8bbb8b;
+            border: 3px solid #83a859;
+            color: #fff;
+            border-radius: 9px;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        button:hover {
+            background-color: #ff9933;
+            border-color: #ff9933;
+        }
+        /* Styling for the game box */
+        .game-box {
+            border: 2px solid #ccc;
+            padding: 20px;
+            margin: 20px auto;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 25px;
+            background-color: #fffff0;
+            box-shadow: 0px 0px 10px 0px rgba(150, 201, 11, 0.5);
+        }
+        /* Styling for the message box */
+        .message-box {
+            border: 1px solid #b5c59a;
+            padding: 10px;
+            margin-top: 25px;
+            background-color: #e4f8d7;
+            border-radius: 20px;
+            overflow-y: auto; /* Enable vertical scroll */
+            height: 200px; /* Set fixed height */
+        }
+        /* Styling for individual messages */
+        .message {
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
+            font-size: 20px;
+            text-align: left;
+        }
+
+
+    </style>
+</head>
+<body>
+<div class="game-box">
+    <!-- Game title -->
+    <h1>COIN TOSS GAME</h1>
+
+    <!-- Health status of player and opponent -->
+    <div id="health-status">
+        <p>Player Health: <span id="player-health">100</span></p>
+        <p>Opponent Health: <span id="opponent-health">100</span></p>
+    </div>
+
+    <!-- Message box for displaying game messages -->
+    <div class="message-box" id="messages"></div>
+
+    <!-- Dropdown for selecting heads or tails -->
+    <div>
+        <label for="coin-choice">Pick a Side:</label>
+        <select id="coin-choice">
+            <option value="head">Heads</option>
+            <option value="tail">Tails</option>
+        </select>
+        <button onclick="tossCoin()">Toss Coin</button>
+    </div>
+
+    <!-- Buttons for player actions (attack and defend) -->
+    <div>
+        <button id="attack-btn" onclick="playerAction('attack')" disabled>Attack</button>
+        <button id="defend-btn" onclick="playerAction('defend')" disabled>Defend</button>
+    </div>
+
+    <!-- Reset button for restarting the game -->
+    <div>
+        <button id="reset-btn" onclick="resetGame()" disabled>Reset Game</button>
+    </div>
+</div>
+
+<!-- JavaScript code for game logic -->
+<script>
+    // Initial health values for player and opponent
+    let playerHealth = 100;
+    let opponentHealth = 100;
+    let currentPlayerAction;
+
+    // Function for coin toss
+    function tossCoin() {
+        const coinChoice = document.getElementById('coin-choice').value;
+        const coinResult = Math.random() < 0.5 ? 'head' : 'tail';
+        const tossMessage = `Coin is ${coinResult}. You chose ${coinChoice}!`;
+
+        // Enable buttons for player actions
+        document.getElementById('attack-btn').disabled = false;
+        document.getElementById('defend-btn').disabled = false;
+
+        // Display the result of the coin toss
+        showMessage(tossMessage);
+    }
+
+    // Function for calculating damage
+    function calculateDamage() {
+        return Math.floor(Math.random() * 5) + 1; 
+    }
+
+    // Function for opponent's action (randomized between attack and defend)
+    function opponentAction() {
+        return Math.random() < 0.5 ? 'attack' : 'defend';
+    }
+
+    // Function for player's action
+    function playerAction(action) {
+        currentPlayerAction = action;
+        if (action === 'attack') {
+            showMessage("<strong>You will Attack!</strong>");
+            playerAttack();
+        } else {
+            showMessage("<strong>You will Defend!</strong>");
+            playerDefend();
+        }
+    }
+
+    // Function for player's attack action
+    function playerAttack() {
+        let damage = calculateDamage();
+        let opponentBlock = Math.random() < 0.5;
+        if (opponentBlock) {
+            showMessage("The opponent completely blocked your attack.");
+            damage = 0;
+        } else {
+            opponentHealth -= damage;
+            if (opponentHealth < 0) opponentHealth = 0;
+            showMessage(`You inflict ${damage} damage.`);
+        }
+        updateHealthStatus();
+        opponentTurn();
+    }
+
+    // Function for player's defend action
+    function playerDefend() {
+        const action = opponentAction();
+        if (action === 'attack') {
+            const opponentDamage = Math.floor(Math.random() * 4);
+            playerHealth -= opponentDamage;
+            if (playerHealth < 0) playerHealth = 0;
+            showMessage(`Opponent inflicts ${opponentDamage} damage.`);
+        } else if (action === 'defend') {
+            showMessage("Opponent defends");
+        }
+        updateHealthStatus();
+    }
+
+    // Function for opponent's turn
+    function opponentTurn() {
+        if (currentPlayerAction === 'defend') {
+            return;
+        }
+
+        if (opponentHealth > 0) {
+            const action = opponentAction();
+            if (action === 'attack') {
+                playerDefend();
+            } else if (action === 'defend') {
+                showMessage("Opponent defends.");
+            }
+        }
+    }
+
+    // Function for updating health status
+    function updateHealthStatus() {
+        document.getElementById('player-health').textContent = playerHealth;
+        document.getElementById('opponent-health').textContent = opponentHealth;
+        checkHealth();
+    }
+
+    // Function for checking game over conditions
+    function checkHealth() {
+        if (playerHealth <= 0) {
+            showMessage("Opponent wins.");
+            disableButtons();
+        } else if (opponentHealth <= 0) {
+            showMessage("Player wins.");
+            disableButtons();
+        }
+    }
+
+    // Function for resetting the game
+    function resetGame() {
+        playerHealth = 100;
+        opponentHealth = 100;
+        updateHealthStatus();
+        clearMessages();
+        document.getElementById('reset-btn').disabled = true;
+        document.getElementById('attack-btn').disabled = true;
+        document.getElementById('defend-btn').disabled = true;
+        document.getElementById('toss-head').disabled = false;
+        document.getElementById('toss-tail').disabled = false;
+    }
+
+    // Function for disabling buttons
+    function disableButtons() {
+        document.getElementById('attack-btn').disabled = true;
+        document.getElementById('defend-btn').disabled = true;
+        document.getElementById('reset-btn').disabled = false;
+    }
+
+    // Function for displaying messages
+    function showMessage(message) {
+        const messagesDiv = document.getElementById('messages');
+        const p = document.createElement('p');
+        p.classList.add('message');
+        p.innerHTML = message; // Using innerHTML to render HTML tags
+        messagesDiv.appendChild(p);
+    }
+
+    function clearMessages() {
+        document.getElementById('messages').innerHTML = '';
+    }
+</script>
+</body>
+</html>
+
+
+</body>
+</html>
